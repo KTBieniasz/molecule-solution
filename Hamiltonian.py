@@ -5,7 +5,7 @@ Hamiltonian.py - Define Hamiltonian
 '''
 
 import numpy as np
-from PauliString import PauliString, LinearCombinaisonPauliString
+# from PauliString import PauliString, LinearCombinaisonPauliString
 
 class FermionicHamiltonian(object):
 
