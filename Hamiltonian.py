@@ -209,6 +209,27 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         self.with_spin = with_spin
     
     @classmethod
+    def from_integrals(cls,h1,h2):
+        """Generate a MolecularFermionicHamiltonian describing a Molecule from h1 and h2 integral tensors
+
+        Args:
+            h1 (np.ndarray(n,n)): One Body integral tensor
+            h2 (np.ndarray(n,n,n,n)): Two Body integral tensor
+
+        Raises:
+            NotImplementedError: [description]
+            NotImplementedError: [description]
+
+        Returns:
+            MolecularFermionicHamiltonian: The Hamiltonian decribing the Molecule including 1 OneBody and 1 TwoBody
+        """
+
+        one_body = OneBodyFermionicHamiltonian(h1)
+        two_body = TwoBodyFermionicHamiltonian(h2)
+
+        return cls(one_body,two_body)
+
+    @classmethod
     def from_pyscf_mol(cls,mol):
         """Generates a MolecularFermionicHamiltonian describing a Molecule from a pyscf Molecule reprensetation.
 
