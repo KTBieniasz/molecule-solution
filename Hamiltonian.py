@@ -216,10 +216,6 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
             h1 (np.ndarray(n,n)): One Body integral tensor
             h2 (np.ndarray(n,n,n,n)): Two Body integral tensor
 
-        Raises:
-            NotImplementedError: [description]
-            NotImplementedError: [description]
-
         Returns:
             MolecularFermionicHamiltonian: The Hamiltonian decribing the Molecule including 1 OneBody and 1 TwoBody
         """
