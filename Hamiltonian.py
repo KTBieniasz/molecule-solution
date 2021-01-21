@@ -130,7 +130,7 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
         new_coefs = np.zeros(((2*n_orbs)**2,),dtype = np.complex)
         new_pauli_strings = np.zeros(((2*n_orbs)**2,),dtype = PauliString)
         # TO COMPLETE (after activity 3.1)
-        NotImplementedError()
+        raise NotImplementedError
         return lcps
 
 
@@ -168,7 +168,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
         # TO COMPLETE (after activity 2.2)
         # Hint : make use of np.einsum
         # new_integrals = 
-        NotImplementedError()
+        raise NotImplementedError
         return TwoBodyFermionicHamiltonian(new_integrals,self.with_spin)
 
     def to_linear_combinaison_pauli_string(self,aps,ams):
@@ -188,7 +188,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
         new_coefs = np.zeros(((2*n_orbs)**4 ,),dtype = np.complex)
         new_pauli_strings = np.zeros(((2*n_orbs)**4,),dtype = PauliString)
         ## TO COMPLETE (after activity 3.1)
-        NotImplementedError()
+        raise NotImplementedError
         return lcps
         
 
@@ -241,7 +241,7 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         two_body = TwoBodyFermionicHamiltonian(h2_mo)
 
         # Recommended : Make sure that h1_mo is diagonal and that its eigenvalues are sorted in growing order.
-        NotImplementedError()
+        raise NotImplementedError
         return cls(one_body,two_body)
 
     def number_of_orbitals(self):
@@ -320,6 +320,6 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         """     
 
         # TO COMPLETE (after activity 3.1)
-        NotImplementedError()
+        raise NotImplementedError
         return out
 
