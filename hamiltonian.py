@@ -1,5 +1,5 @@
 """
-Hamiltonian.py - Define Hamiltonian
+hamiltonian.py - Define Hamiltonian
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
 This file has been modified by <Your,Name> during the
