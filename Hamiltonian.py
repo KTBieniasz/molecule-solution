@@ -20,7 +20,7 @@ limitations under the License.
 
 import numpy as np
 import typing
-from PauliString import PauliString, LinearCombinaisonPauliString
+from pauli_string import PauliString, LinearCombinaisonPauliString
 
 # define types
 LinearCombinaisonPauliStringList = list[LinearCombinaisonPauliString]
