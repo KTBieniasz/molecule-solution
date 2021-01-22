@@ -2,6 +2,8 @@
 Hamiltonian.py - Define Hamiltonian
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
+This file has been modified by [Your,Name] during the 
+QSciTech-QuantumBC virtual workshop on gate-based quantum computing.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -211,7 +213,9 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         Args:
             one_body (OneBodyFermionicHamiltonian): [description]
             two_body (TwoBodyFermionicHamiltonian): [description]
-            with_spin (bool, optional): [description]. Defaults to False.
+            with_spin (bool, optional): Does the integral tensor includes the spin? Defaults to False.
+                Should be False if the integrals is for orbital part only
+                Should be True if the spin is already included in the integrals
         """
         if one_body.number_of_orbitals() != two_body.number_of_orbitals():
             raise()
@@ -221,21 +225,24 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         self.with_spin = with_spin
     
     @classmethod
-    def from_integrals(cls,h1,h2):
+    def from_integrals(cls,h1,h2,with_spin = False):
         """Generate a MolecularFermionicHamiltonian describing a Molecule from h1 and h2 integral tensors
 
         Args:
             h1 (np.ndarray(n,n)): One Body integral tensor
             h2 (np.ndarray(n,n,n,n)): Two Body integral tensor
+            with_spin (bool, optional): Does the integral tensor includes the spin? Defaults to False.
+                Should be False if the integrals is for orbital part only
+                Should be True if the spin is already included in the integrals
 
         Returns:
             MolecularFermionicHamiltonian: The Hamiltonian decribing the Molecule including 1 OneBody and 1 TwoBody
         """
 
-        one_body = OneBodyFermionicHamiltonian(h1)
-        two_body = TwoBodyFermionicHamiltonian(h2)
+        one_body = OneBodyFermionicHamiltonian(h1,with_spin)
+        two_body = TwoBodyFermionicHamiltonian(h2,with_spin)
 
-        return cls(one_body,two_body)
+        return cls(one_body,two_body,with_spin)
 
     @classmethod
     def from_pyscf_mol(cls,mol):
