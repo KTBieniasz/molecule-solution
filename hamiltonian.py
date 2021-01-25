@@ -19,16 +19,11 @@ limitations under the License.
 """
 
 import numpy as np
-import typing
 from pauli_string import PauliString, LinearCombinaisonPauliString
-
-# define types
-LinearCombinaisonPauliStringList = list[LinearCombinaisonPauliString]
-
 
 class FermionicHamiltonian(object):
 
-    def __str__(self) -> str:
+    def __str__(self):
         """
         String representation of FermionicHamiltonian.
 
@@ -41,7 +36,7 @@ class FermionicHamiltonian(object):
         out += f'\nIncluding spin : {str(self.with_spin)}'
         return out
 
-    def number_of_orbitals(self) -> int:
+    def number_of_orbitals(self):
         """
         Number of orbitals in the state basis.
 
@@ -82,7 +77,7 @@ class FermionicHamiltonian(object):
         
         return self.__class__(new_integrals, with_spin=True)
 
-    def get_integrals(self, cut_zeros=True, threshold=1e-9) -> np.ndarray:
+    def get_integrals(self, cut_zeros=True, threshold=1e-9):
         """
         Returns the integral tensor with an optional threshold for values close to 0.
 
@@ -104,7 +99,7 @@ class FermionicHamiltonian(object):
 class OneBodyFermionicHamiltonian(FermionicHamiltonian):
     spin_tensor = np.eye(2)
 
-    def __init__(self, integrals: np.ndarray, with_spin=False):
+    def __init__(self, integrals, with_spin=False):
         """
         A FermionicHamiltonian representing a one body term in the form of $sum_i h_{ij} a_i^\dagger a_j$.
 
@@ -124,7 +119,7 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
         self.integrals = integrals
         self.with_spin = with_spin
 
-    def change_basis(self, transform: np.ndarray):
+    def change_basis(self, transform):
         """
         Transforms the integrals tensor (n*n) into a new basis.
 
@@ -148,16 +143,15 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
 
         return OneBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
-    def to_linear_combinaison_pauli_string(self, aps: LinearCombinaisonPauliStringList,
-                                           ams: LinearCombinaisonPauliStringList) -> LinearCombinaisonPauliString:
+    def to_linear_combinaison_pauli_string(self, aps, ams):
         """
         Generates a qubit operator reprensentation (LinearCombinaisonPauliString) of the OneBodyFermionicHamiltonian
         given some creation/annihilation operators.
 
         Args:
-            aps (LinearCombinaisonPauliStringList): List of the creation operators for each orbital in the form of
+            aps (list<LinearCombinaisonPauliString>): List of the creation operators for each orbital in the form of
                                                     LinearCombinaisonPauliString.
-            ams (LinearCombinaisonPauliStringList): List of the annihilation operators for each orbital in the form of
+            ams (list<LinearCombinaisonPauliString>): List of the annihilation operators for each orbital in the form of
                                                     LinearCombinaisonPauliString.
 
         Returns:
@@ -187,7 +181,7 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
 class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
     spin_tensor = np.kron(np.eye(2)[:, None, None, :], np.eye(2)[None, :, :, None])  # physicist notation
 
-    def __init__(self, integrals: np.ndarray, with_spin=False):
+    def __init__(self, integrals, with_spin=False):
         """
         A FermionicHamiltonian representing a two body term in the form of
         $sum_i h_{ijkl} a_i^\dagger a_j^\dagger a_k a_l$.
@@ -208,7 +202,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
         self.integrals = integrals
         self.with_spin = with_spin
 
-    def change_basis(self, transform: np.ndarray):
+    def change_basis(self, transform):
         """
         Transforms the integrals tensor (n*n*n*n) into a new basis.
 
@@ -232,16 +226,15 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
 
         return TwoBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
-    def to_linear_combinaison_pauli_string(self, aps: LinearCombinaisonPauliStringList,
-                                           ams: LinearCombinaisonPauliStringList) -> LinearCombinaisonPauliString:
+    def to_linear_combinaison_pauli_string(self, aps, ams):
         """
         Generates a qubit operator reprensentation (LinearCombinaisonPauliString) of the TwoBodyFermionicHamiltonian
         given some creation/annihilation operators.
 
         Args:
-            aps (LinearCombinaisonPauliStringList): List of the creation operators for each orbital in the form of
+            aps (list<LinearCombinaisonPauliString>): List of the creation operators for each orbital in the form of
                                                     LinearCombinaisonPauliString.
-            ams (LinearCombinaisonPauliStringList): List of the annihilation operators for each orbital in the form of
+            ams (list<LinearCombinaisonPauliString>): List of the annihilation operators for each orbital in the form of
                                                     LinearCombinaisonPauliString.
 
         Returns:
@@ -268,7 +261,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
         
 
 class MolecularFermionicHamiltonian(FermionicHamiltonian):
-    def __init__(self, one_body: OneBodyFermionicHamiltonian, two_body: TwoBodyFermionicHamiltonian, with_spin=False):
+    def __init__(self, one_body, two_body, with_spin=False):
         """
         A composite FermionicHamiltonian made of 1 OneBodyFermionicHamiltonian and 1 TwoBodyFermionicHamiltonian.
 
@@ -288,7 +281,7 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         self.with_spin = with_spin
     
     @classmethod
-    def from_integrals(cls, h1: np.ndarray, h2: np.ndarray, with_spin=False):
+    def from_integrals(cls, h1, h2, with_spin=False):
         """
         Generates a MolecularFermionicHamiltonian describing a Molecule from h1 and h2 integral tensors.
 
@@ -354,7 +347,7 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
 
         return cls(one_body, two_body)
 
-    def number_of_orbitals(self) -> int:
+    def number_of_orbitals(self):
         """
         Number of orbitals in the state basis.
 
@@ -364,7 +357,7 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
 
         return self.one_body.integrals.shape[0]
 
-    def change_basis(self, transform: np.ndarray):
+    def change_basis(self, transform):
         """
         Transforms the integrals tensors for both sub Hamiltonian.
         See FermionicHamiltonian.change_basis.
@@ -425,16 +418,15 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
 
         return integrals_one, integrals_two
 
-    def to_linear_combinaison_pauli_string(self, aps: LinearCombinaisonPauliStringList,
-                                           ams: LinearCombinaisonPauliStringList) -> LinearCombinaisonPauliString:
+    def to_linear_combinaison_pauli_string(self, aps, ams):
         """
         Generates a qubit operator representation (LinearCombinaisonPauliString) of the MolecularFermionicHamiltonian
         given some creation/annihilation operators.
 
         Args:
-            aps (LinearCombinaisonPauliStringList): List of the creation operators for each orbital in the form of
+            aps (list<LinearCombinaisonPauliString>): List of the creation operators for each orbital in the form of
                                                     LinearCombinaisonPauliString.
-            ams (LinearCombinaisonPauliStringList): List of the annihilation operators for each orbital in the form of
+            ams (list<LinearCombinaisonPauliString>): List of the annihilation operators for each orbital in the form of
                                                     LinearCombinaisonPauliString.
 
         Returns:
