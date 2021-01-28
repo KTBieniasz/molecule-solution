@@ -519,7 +519,7 @@ class LinearCombinaisonPauliString(object):
             LinearCombinaisonPauliString: LCPS without coefficients smaller then threshold.
         """
 
-        idx = np.where(self.coefs>threshold)[0]
+        idx = np.where(np.abs(self.coefs)>threshold)[0]
         new_pauli_strings = self.pauli_strings[idx]
         new_coefs = self.coefs[idx]
 
