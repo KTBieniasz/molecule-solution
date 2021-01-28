@@ -313,29 +313,33 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         Returns:
             MolecularFermionicHamiltonian: The Hamiltonian describing the Molecule including one OneBody and one
             TwoBody terms.
-        """
+            """
 
-        h1_mo = h2_mo = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 2.3)
-        # Hint : Make sure the 2 body integrals are in the physicist notation (order) or change the spin_tensor.
-        # accordingly.
-        
         # Diagonalisation of ovlp and build a transformation toward an orthonormal basis (ao2oo).
-        # TO COMPLETE
+        ovlp = mol.intor("int1e_ovlp")
+        eig_value_ovlp, eig_vector_ovlp = np.linalg.eigh(ovlp)
+        order = np.argsort(eig_value_ovlp)
+        eig_vector_ovlp = eig_vector_ovlp[:, order]
+        ao2oo = eig_vector_ovlp/np.sqrt(eig_value_ovlp[None,:])
+        # Build h1 in AO basis and transform it into MO basis.
+        T_ao = mol.intor("int1e_kin") + mol.intor("int1e_nuc")
+        T_oo = np.einsum('mi,nj,mn->ij', ao2oo,ao2oo,T_ao)
+        eig_value_T_oo, eig_vector_T_oo = np.linalg.eigh(T_oo)
+        order = np.argsort(eig_value_T_oo)
+        oo2mo = eig_vector_T_oo[:, order]
+        ao2mo = ao2oo @ oo2mo
+        T_mo = np.einsum('mi,nj,mn->ij', ao2mo,ao2mo,T_ao)
+        # Build h2 in AO basis and transform it into MO basis.
+        V_ao = mol.intor("int2e")
+        V_mo = np.einsum('mi,nj,ok,pl,mnop->ijkl',ao2mo,ao2mo,ao2mo,ao2mo, V_ao)
+        # Spin tensor in physicist notation
+        # T_spin = np.eye(2)
+        # T_spin_mo = np.kron(T_spin,T_mo)
+        # V_spin = np.kron(np.eye(2)[:,None,None,:],np.eye(2)[None,:,:,None])
+        # V_spin_mo = np.kron(V_spin,V_mo)
 
-        # Build h1 in AO basis and transform it into OO basis.
-        # TO COMPLETE
-
-        # Find a transformation from OO basis toward MO basis where h1 is diagonal and eigenvalues are in growing order.
-        # TO COMPLETE
-
-        # Transform h1 and h2 from AO to MO basis
-        # TO COMPLETE
-        # h1_mo = 
-        # h2_mo = 
+        h1_mo = T_mo
+        h2_mo = V_mo
         ################################################################################################################
 
         # Build the one and two body Hamiltonians
@@ -343,8 +347,6 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         two_body = TwoBodyFermionicHamiltonian(h2_mo)
 
         # Recommended : Make sure that h1_mo is diagonal and that its eigenvalues are sorted in growing order.
-        raise NotImplementedError()
-
         return cls(one_body, two_body)
 
     def number_of_orbitals(self):

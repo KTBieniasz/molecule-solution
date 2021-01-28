@@ -64,17 +64,15 @@ class JordanWigner(Mapping):
                 operators for each orbital in the form of LinearCombinaisonPauliString.
         """
 
-        aps = list()
-        ams = list()
+        aps = [0.5*PauliString.from_str("IIIX")-0.5j*PauliString.from_str("IIIY"),
+               0.5*PauliString.from_str("IIXZ")-0.5j*PauliString.from_str("IIYZ"),
+               0.5*PauliString.from_str("IXZZ")-0.5j*PauliString.from_str("IYZZ"),
+               0.5*PauliString.from_str("XZZZ")-0.5j*PauliString.from_str("YZZZ")]
+        ams = [0.5*PauliString.from_str("IIIX")+0.5j*PauliString.from_str("IIIY"),
+               0.5*PauliString.from_str("IIXZ")+0.5j*PauliString.from_str("IIYZ"),
+               0.5*PauliString.from_str("IXZZ")+0.5j*PauliString.from_str("IYZZ"),
+               0.5*PauliString.from_str("XZZZ")+0.5j*PauliString.from_str("YZZZ")]
         
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.1)
-        # This is a large piece of the puzzle
-        ################################################################################################################
-
-        raise NotImplementedError()
-
         return aps, ams
 
 
