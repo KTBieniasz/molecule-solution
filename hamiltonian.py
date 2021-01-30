@@ -19,6 +19,8 @@ limitations under the License.
 """
 
 import numpy as np
+from functools import reduce
+import itertools as it
 from pauli_string import PauliString, LinearCombinaisonPauliString
 
 class FermionicHamiltonian(object):
@@ -130,17 +132,8 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
             OneBodyFermionicHamiltonian: Transformed Hamiltonian.
         """
 
-        new_integrals = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 2.2)
-        # Hint : make use of np.einsum
-        # new_integrals =
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        new_integrals = np.einsum('mi,nj,mn->ij', transform, transform, self.integrals)
+        
         return OneBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
     def to_linear_combinaison_pauli_string(self, aps, ams):
@@ -158,23 +151,9 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
             LinearCombinaisonPauliString: Qubit operator reprensentation of the OneBodyFermionicHamiltonian.
         """        
 
-        n_orbs = self.number_of_orbitals()
-
-        # Since each creation/annihilation operator consists of 2 PauliString for each orbital
-        # and we compute ap * am, there will be (2*n_orbs)**2 Coefs and PauliStrings.
-        new_coefs = np.zeros(((2*n_orbs)**2,), dtype=np.complex)
-        new_pauli_strings = np.zeros(((2*n_orbs)**2,), dtype=PauliString)
-
-        lcps = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.1)
-        # lcps =
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        lcps_gen = (p*m*i for (p,m),i in zip(it.product(aps,ams), self.integrals.flatten()) if abs(i)>1e-15)
+        lcps = reduce(sum, lcps_gen)
+        
         return lcps
 
 
@@ -213,16 +192,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
             TwoBodyFermionicHamiltonian: Transformed Hamiltonian.
         """
 
-        new_integrals = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 2.2)
-        # Hint : make use of np.einsum
-        # new_integrals =
-        ################################################################################################################
-
-        raise NotImplementedError()
+        new_integrals = np.einsum('mi,nj,ok,pl,mnop->ijkl', transform, transform, transform, transform, self.integrals)
 
         return TwoBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
@@ -241,22 +211,9 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
             LinearCombinaisonPauliString: Qubit operator reprensentation of the TwoBodyFermionicHamiltonian.
         """     
 
-        n_orbs = self.number_of_orbitals()
-        # Since each creation/annihilation operator consist of 2 PauliString for each orbital
-        # and we compute ap * ap * am * am there will be (2*n_orbs)**4 Coefs and PauliStrings
-        new_coefs = np.zeros(((2*n_orbs)**4,), dtype=np.complex)
-        new_pauli_strings = np.zeros(((2*n_orbs)**4,), dtype=PauliString)
-
-        lcps = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.1)
-        # lcps =
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        lcps_gen = (0.5*p1*p2*m1*m2*i for (p1,p2,m1,m2),i in zip(it.product(aps,aps,ams,ams), self.integrals.flatten()) if abs(i)>1e-15)
+        lcps = reduce(sum, lcps_gen)
+        
         return lcps
         
 
@@ -321,6 +278,7 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         order = np.argsort(eig_value_ovlp)
         eig_vector_ovlp = eig_vector_ovlp[:, order]
         ao2oo = eig_vector_ovlp/np.sqrt(eig_value_ovlp[None,:])
+
         # Build h1 in AO basis and transform it into MO basis.
         T_ao = mol.intor("int1e_kin") + mol.intor("int1e_nuc")
         T_oo = np.einsum('mi,nj,mn->ij', ao2oo,ao2oo,T_ao)
@@ -329,24 +287,15 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
         oo2mo = eig_vector_T_oo[:, order]
         ao2mo = ao2oo @ oo2mo
         T_mo = np.einsum('mi,nj,mn->ij', ao2mo,ao2mo,T_ao)
-        # Build h2 in AO basis and transform it into MO basis.
-        V_ao = mol.intor("int2e")
-        V_mo = np.einsum('mi,nj,ok,pl,mnop->ijkl',ao2mo,ao2mo,ao2mo,ao2mo, V_ao)
-        # Spin tensor in physicist notation
-        # T_spin = np.eye(2)
-        # T_spin_mo = np.kron(T_spin,T_mo)
-        # V_spin = np.kron(np.eye(2)[:,None,None,:],np.eye(2)[None,:,:,None])
-        # V_spin_mo = np.kron(V_spin,V_mo)
 
-        h1_mo = T_mo
-        h2_mo = V_mo
-        ################################################################################################################
+        # Build h2 in AO basis and transform it into MO basis.
+        h1_mo = mol.intor("int2e")
+        h2_mo = np.einsum('mi,nj,ok,pl,mnop->ijkl',ao2mo,ao2mo,ao2mo,ao2mo, V_ao)
 
         # Build the one and two body Hamiltonians
         one_body = OneBodyFermionicHamiltonian(h1_mo)
         two_body = TwoBodyFermionicHamiltonian(h2_mo)
 
-        # Recommended : Make sure that h1_mo is diagonal and that its eigenvalues are sorted in growing order.
         return cls(one_body, two_body)
 
     def number_of_orbitals(self):
@@ -435,14 +384,9 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
             LinearCombinaisonPauliString: Qubit operator reprensentation of the MolecularFermionicHamiltonian.
         """     
 
-        out = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.1)
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        one_body = self.one_body.to_linear_combinaison_pauli_string(aps, ams)
+        two_body = self.two_body.to_linear_combinaison_pauli_string(aps, ams)
+        out = one_body + two_body
+        
         return out
 
