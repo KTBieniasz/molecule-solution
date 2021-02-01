@@ -290,7 +290,7 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
 
         # Build h2 in AO basis and transform it into MO basis.
         V_ao = mol.intor("int2e")
-        h2_mo = np.einsum('mi,nj,ok,pl,mnop->ijkl',ao2mo,ao2mo,ao2mo,ao2mo, V_ao)
+        h2_mo = np.einsum('mi,nj,ok,pl,mnop->iklj',ao2mo,ao2mo,ao2mo,ao2mo, V_ao)
 
         # Build the one and two body Hamiltonians
         one_body = OneBodyFermionicHamiltonian(h1_mo)
