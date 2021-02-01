@@ -21,7 +21,9 @@ limitations under the License.
 from qiskit import QuantumCircuit, execute
 import time
 import numpy as np
+import scipy.sparse as sp
 from pauli_string import PauliString
+from functools import reduce
 
 
 class Evaluator(object):
@@ -84,9 +86,13 @@ class Evaluator(object):
         """
 
         t0 = time.time()
+        
         eval_circuits = self.prepare_eval_circuits(params)
-        counts_arrays = list()
-
+        job = execute(eval_circuits, self.backend, **self.execute_opts)
+        result = job.result()
+        
+        count_arrays = [self.counts2array(result.get_counts(circuit)) for circuit in eval_circuits]
+        output = self.interpret_count_arrays(count_arrays)
         ################################################################################################################
         # YOUR CODE HERE
         # TO COMPLETE (after activity 3.2)
@@ -101,10 +107,9 @@ class Evaluator(object):
         # (Optional) monitor the time of execution
         ################################################################################################################
 
-        output = self.interpret_counts(counts_arrays)
+        #output = self.interpret_counts(counts_arrays) #this method does not exist. Probably was supposed to be self.interpret_count_arrays
         eval_time = time.time()-t0
-
-        raise NotImplementedError()
+        print("Evaluated in {t:.3f} seconds".format(t=eval_time))
 
         return output
 
@@ -120,15 +125,10 @@ class Evaluator(object):
             list<QuantumCircuit>: All the QuantumCircuit necessary to the evaluation of the LCPS.
         """
 
-        eval_circuits = list()
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.2)
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        param_dict = dict(zip(self.varform.parameters, params))
+        varform_qc = self.varform.assign_parameters(param_dict)
+        eval_circuits = [varform_qc.combine(qc) for qc in self.measurement_circuits]
+        
         return eval_circuits
 
     def counts2array(self, counts):
@@ -142,11 +142,9 @@ class Evaluator(object):
             np.array<int>: Counts vector sorted in the usual way :
             0...00, 0...01, 0...10, ..., 1...11
         """
-
-        array = np.zeros((2**self.n_qubits,), dtype=int)
-        for state, count in counts.items():
-            i = int(state,base=2)
-            array[i] = count
+        col_ind, data = zip(*[(int(state,base=2), count) for (state, count) in counts.items()])
+        row_ind = [0]*len(col_ind)
+        array = sp.csr_matrix((data, (row_ind,col_ind)), shape=(1,2**self.n_qubits), dtype=int)
 
         return array
 
@@ -185,14 +183,7 @@ class Evaluator(object):
                 Mathematical return h_i <P_i> 
         """
 
-        value = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.2)
-        ################################################################################################################
-        
-        raise NotImplementedError()
+        value = counts_array.dot(interpreter)/counts_array.sum()
 
         return value
 
@@ -211,13 +202,15 @@ class Evaluator(object):
 
         n_qubits = len(pauli_string)
         qc = QuantumCircuit(n_qubits, n_qubits)
-        
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.2)
-        ################################################################################################################
-        
-        raise NotImplementedError()
+        qc.barrier()
+        for i,(z,x) in enumerate(zip(pauli_string.z_bits, pauli_string.x_bits)):
+            if (z==False and x==True):
+                qc.h(i)
+            if (z==True and x==True):
+                qc.sdg(i)
+                qc.h(i)
+        qc.barrier()
+        qc.measure(range(n_qubits), range(n_qubits))
 
         return qc
 
@@ -233,21 +226,10 @@ class Evaluator(object):
             [type]: [description]
         """
 
-        eigenvalues = None
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.2)
-        # Hint : starts with
-        eigenvalues = np.ones((1,), dtype=np.int)
-        # and use np.kron to build the vector
-        # Eigenvalues of X, Y and Z are 1 and -1
-        # Eigenvalues of I are 1 and 1
         EIG_Z = np.array([1,-1], dtype=np.int)
         EIG_I = np.array([1,1], dtype=np.int)
-        ################################################################################################################
-        
-        raise NotImplementedError()
+        D = {"Z":EIG_Z, "X":EIG_Z, "Y":EIG_Z, "I":EIG_I}
+        eigenvalues = reduce(lambda x,y: np.kron(x,D[y]), str(pauli_string), 1)
 
         return eigenvalues
 
@@ -271,17 +253,9 @@ class BasicEvaluator(Evaluator):
         Returns:
             list<qiskit.QuantumCircuit>, list<np.array>: [description]
         """
-        
-        circuits = list()
-        interpreters = list()
 
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.2)
-        # Hint : the next method does the work for 1 PauliString + coef
-        ################################################################################################################
-        
-        raise NotImplementedError()
+        circuits = [Evaluator.pauli_string_based_measurement(ps) for ps in lcps.pauli_strings]
+        interpreters = [Evaluator.measurable_eigenvalues(ps)*cf for ps,cf in zip(lcps.pauli_strings,lcps.coefs)]
 
         return circuits, interpreters
 
