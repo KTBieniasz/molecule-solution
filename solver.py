@@ -45,16 +45,11 @@ class ExactSolver(LCPSSolver):
         Returns:
             np.array, np.array : Eigenvalues and eigenvectors sorted with respect to the eigenvalues.
         """
-
-        eig_values, eig_vectors = None
-
-        ################################################################################################################
-        # YOUR CODE HERE (OPTIONAL)
-        # TO COMPLETE (after activity 3.2)
-        # Hint : np.linalg.eigh
-        ################################################################################################################
-
-        raise NotImplementedError()
+        hamilt_matrix = lcps.to_matrix()
+        eig_values, eig_vectors = np.linalg.eigh(hamilt_matrix)
+        eig_order = np.argsort(eig_values)
+        eig_values = eig_values[eig_order]
+        eig_vectors = eig_vectors[:,eig_order]
 
         return eig_values, eig_vectors
 
@@ -69,15 +64,12 @@ class ExactSolver(LCPSSolver):
             float, np.array : The lowest eigenvalue and the associated eigenvector.
         """
 
-        eig_value, eig_vector = None
+        eig_values, eig_vectors = self.eig(lcps)
+        eig_value, eig_vector = eig_values[0], eig_vectors[:,0]
 
-        ################################################################################################################
-        # YOUR CODE HERE (OPTIONAL)
-        # TO COMPLETE (after activity 3.2)
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        self.last_eig_value = eig_value
+        self.last_eig_vector = eig_vector
+        
         return eig_value, eig_vector
 
 
@@ -121,16 +113,14 @@ class VQESolver(LCPSSolver):
 
         t0 = time.time()
 
-        opt_value, opt_params = None
-
-        ################################################################################################################
-        # YOUR CODE HERE (OPTIONAL)
-        # TO COMPLETE (after activity 3.2)
-        ################################################################################################################
-
-        raise NotImplementedError()
+        minimization_result = self.minimizer(self.evaluator.eval,self.start_params)
+        opt_value = minimization_result.fun
+        opt_params = minimization_result.x
 
         self.last_minimization_duration = time.time()-t0
+        self.last_result = minimization_result
+        self.last_opt_value = opt_value
+        self.last_opt_params = opt_params
         
         return opt_value, opt_params
 
