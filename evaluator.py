@@ -53,6 +53,7 @@ class Evaluator(object):
 
         self.measure_filter = measure_filter
         self.record = record
+        self.eval_time = None #Added by KTB
 
         # To be set attributes
         self.n_qubits = None
@@ -108,8 +109,9 @@ class Evaluator(object):
         ################################################################################################################
 
         #output = self.interpret_counts(counts_arrays) #this method does not exist. Probably was supposed to be self.interpret_count_arrays
-        eval_time = time.time()-t0
-        print("Evaluated in {t:.3f} seconds".format(t=eval_time))
+        self.eval_time = time.time()-t0
+        #print("Evaluated in {t:.3f} seconds".format(t=eval_time))
+        self.record = output
 
         return output
 
