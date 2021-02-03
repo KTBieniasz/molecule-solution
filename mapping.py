@@ -63,15 +63,12 @@ class JordanWigner(Mapping):
             list<LinearCombinaisonPauliString>, list<LinearCombinaisonPauliString>: Lists of the creation/annihilation
                 operators for each orbital in the form of LinearCombinaisonPauliString.
         """
-
-        aps = [0.5*PauliString.from_str("IIIX")-0.5j*PauliString.from_str("IIIY"),
-               0.5*PauliString.from_str("IIXZ")-0.5j*PauliString.from_str("IIYZ"),
-               0.5*PauliString.from_str("IXZZ")-0.5j*PauliString.from_str("IYZZ"),
-               0.5*PauliString.from_str("XZZZ")-0.5j*PauliString.from_str("YZZZ")]
-        ams = [0.5*PauliString.from_str("IIIX")+0.5j*PauliString.from_str("IIIY"),
-               0.5*PauliString.from_str("IIXZ")+0.5j*PauliString.from_str("IIYZ"),
-               0.5*PauliString.from_str("IXZZ")+0.5j*PauliString.from_str("IYZZ"),
-               0.5*PauliString.from_str("XZZZ")+0.5j*PauliString.from_str("YZZZ")]
+        
+        r_bits = [np.concatenate(([True]*n,[False]*n_qubits,[True],[False]*(n_qubits-1-n))) for n in range(n_qubits)]
+        i_bits = [np.concatenate(([True]*(n+1),[False]*(n_qubits-1),[True],[False]*(n_qubits-1-n))) for n in range(n_qubits)]
+        
+        aps = [0.5*PauliString.from_zx_bits(r)-0.5j*PauliString.from_zx_bits(i) for r,i in zip(r_bits,i_bits)]
+        ams = [0.5*PauliString.from_zx_bits(r)+0.5j*PauliString.from_zx_bits(i) for r,i in zip(r_bits,i_bits)]
         
         return aps, ams
 
@@ -97,14 +94,12 @@ class Parity(Mapping):
                 operators for each orbital in the form of LinearCombinaisonPauliString
         """
 
-        aps = list()
-        ams = list()
+        r0_bits = [np.concatenate(([False]*n_qubits,[True]*n_qubits))]
+        r_bits = r0_bits + [np.concatenate(([False]*(n-1),[True],[False]*n_qubits,[True]*(n_qubits-n))) for n in range(1,n_qubits)]
+        i0_bits = [np.concatenate(([True],[False]*(n_qubits-1),[True]*n_qubits))]
+        i_bits = i0_bits + [np.concatenate(([False]*(n-1), [True]*2,[False]*(n_qubits-1),[True]*(n_qubits-n))) for n in range(1,n_qubits)]
         
-        ################################################################################################################
-        # YOUR CODE HERE
-        # OPTIONAL
-        ################################################################################################################
-
-        raise NotImplementedError()
-
+        aps = [0.5*PauliString.from_zx_bits(r)-0.5j*PauliString.from_zx_bits(i) for r,i in zip(r_bits,i_bits)]
+        ams = [0.5*PauliString.from_zx_bits(r)+0.5j*PauliString.from_zx_bits(i) for r,i in zip(r_bits,i_bits)]
+        
         return aps, ams
