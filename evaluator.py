@@ -332,17 +332,7 @@ class BitwiseCommutingCliqueEvaluator(Evaluator):
                 PauliString clique given with the interpreter to interpret to result of the evantual eval_circuit.
         """
 
-        interpreter = circuit = None
-
-        ################################################################################################################
-        # YOUR CODE HERE (OPTIONAL)
-        # TO COMPLETE (after activity 3.2)
-        # Hint : the next method does the work for 1 PauliString + coef
-        ################################################################################################################
-
-        interpreter = np.zeros((len(clique), 2**clique.n_qubits))
-        
-        raise NotImplementedError()
+        interpreter = reduce(lambda itp,ps: itp+ps[0]*Evaluator.measurable_eigenvalues(ps[1]), zip(clique.coefs,clique.pauli_strings), 0)
+        circuit = Evaluator.pauli_string_based_measurement(clique.pauli_strings[0])
 
         return circuit, interpreter
-

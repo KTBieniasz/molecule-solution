@@ -134,9 +134,9 @@ class PauliString(object):
             PauliString: The Pauli string specified by the 'pauli_str'.
         """
 
-        z_bits = np.array([1 if (i=="Z" or i=="Y") else 0
+        z_bits = np.array([True if (i=="Z" or i=="Y") else False
                                for i in reversed(pauli_str)],dtype=bool)
-        x_bits = np.array([1 if (i=="X" or i=="Y") else 0
+        x_bits = np.array([True if (i=="X" or i=="Y") else False
                                for i in reversed(pauli_str)],dtype=bool)
 
         return cls(z_bits, x_bits)
@@ -217,7 +217,7 @@ class PauliString(object):
             np.array<bool>: True where both z_bits and x_bits are False.
         """
 
-        ids = np.array([1 if (z==0 and x==0) else 0 for z,x in zip(self.z_bits,self.x_bits)],dtype=bool)
+        ids = np.array([True if (z==0 and x==0) else False for z,x in zip(self.z_bits,self.x_bits)],dtype=bool)
 
         return ids
 
@@ -249,6 +249,23 @@ class PauliString(object):
 
         return matrix
 
+    def bitwise_commutes(self,other):
+        """
+        Check if two PauliStrings bitwise commute
+
+        Returns:
+            bool: True if bitwise commute, False otherwise
+        """
+
+        if not isinstance(other, PauliString):
+            raise ValueError('Argument must be a PauliString')
+        if len(self) != len(other):
+            raise ValueError('PauliString must be of the same length')
+
+        bit_comm = np.array([True if (z1==False and x1==False) or (z2==False and x2==False) or (z1==z2 and x1==x2) else False
+                                 for z1,x1,z2,x2 in zip(self.z_bits,self.x_bits,other.z_bits,other.x_bits)], dtype=bool)
+
+        return all(bit_comm)
 
 class LinearCombinaisonPauliString(object):
     def __init__(self,coefs,pauli_strings):
@@ -447,7 +464,7 @@ class LinearCombinaisonPauliString(object):
             ValueError: If other is np.array should be of the same length as the LCPS.
 
         Returns:
-            [type]: [description]
+            LinearCombinaisonPauliString: New LCPS equal to the original LCPS  multiplied by the coef
         """
 
         new_coefs = self.coefs * other
@@ -533,18 +550,17 @@ class LinearCombinaisonPauliString(object):
             list<LinearCombinaisonPauliString>: List of LCPS where all elements of one LCPS bitwise commute with each
                                                 other.
         """
-
-        cliques = list()
-
-        ################################################################################################################
-        # YOUR CODE HERE
-        # TO COMPLETE (after activity 3.2)
-        # This one can be hard to implement
-        # Use to_zx_bits
-        # Transform all I into Z and look for unique PauliStrings
-        ################################################################################################################
-
-        raise NotImplementedError()
+        
+        I2Z = lambda z,x: np.concatenate((np.logical_or(z, np.logical_not(x)), x))
+        I2Z_pauli_strings = np.array([I2Z(ps.z_bits,ps.x_bits) for ps in self.pauli_strings], dtype=np.bool)
+        unique_ps, inv_idx = np.unique(I2Z_pauli_strings, return_inverse=True, axis=0)
+        n = len(unique_ps)
+        cliques = [None]*n
+        for i,lcps in zip(inv_idx, self):
+            if cliques[i] == None:
+                cliques[i] = lcps
+            else:
+                cliques[i] += lcps
 
         return cliques
 
