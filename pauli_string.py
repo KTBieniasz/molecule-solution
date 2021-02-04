@@ -555,12 +555,7 @@ class LinearCombinaisonPauliString(object):
         I2Z_pauli_strings = np.array([I2Z(ps.z_bits,ps.x_bits) for ps in self.pauli_strings], dtype=np.bool)
         unique_ps, inv_idx = np.unique(I2Z_pauli_strings, return_inverse=True, axis=0)
         n = len(unique_ps)
-        cliques = [None]*n
-        for i,lcps in zip(inv_idx, self):
-            if cliques[i] == None:
-                cliques[i] = lcps
-            else:
-                cliques[i] += lcps
+        cliques = [self[np.where(inv_idx==i)] for i in range(n)]
 
         return cliques
 
