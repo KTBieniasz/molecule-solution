@@ -113,6 +113,7 @@ class VQESolver(LCPSSolver):
 
         t0 = time.time()
 
+        self.evaluator.set_linear_combinaison_pauli_string(lcps)
         minimization_result = self.minimizer(self.evaluator.eval,self.start_params)
         opt_value = minimization_result.fun
         opt_params = minimization_result.x
