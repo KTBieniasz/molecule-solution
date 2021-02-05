@@ -32,7 +32,7 @@ class Mapping(object):
 
         Args:
             fermionic_hamiltonian (FermionicHamiltonian): A FermionicHamiltonian that provided a 
-                'to_pauli_string_linear_combinaison' method.
+                'to_linear_combinaison_pauli_string' method.
 
         Returns:
             LinearCombinaisonPauliString: The LCPS reprenseting the FermionicHamiltonian
@@ -96,8 +96,7 @@ class Parity(Mapping):
 
         r0_bits = [np.concatenate(([False]*n_qubits,[True]*n_qubits))]
         r_bits = r0_bits + [np.concatenate(([False]*(n-1),[True],[False]*n_qubits,[True]*(n_qubits-n))) for n in range(1,n_qubits)]
-        i0_bits = [np.concatenate(([True],[False]*(n_qubits-1),[True]*n_qubits))]
-        i_bits = i0_bits + [np.concatenate(([False]*(n-1), [True]*2,[False]*(n_qubits-1),[True]*(n_qubits-n))) for n in range(1,n_qubits)]
+        i_bits = [np.concatenate(([False]*n, [True],[False]*(n_qubits-1),[True]*(n_qubits-n))) for n in range(0,n_qubits)]
         
         aps = [0.5*PauliString.from_zx_bits(r)-0.5j*PauliString.from_zx_bits(i) for r,i in zip(r_bits,i_bits)]
         ams = [0.5*PauliString.from_zx_bits(r)+0.5j*PauliString.from_zx_bits(i) for r,i in zip(r_bits,i_bits)]
