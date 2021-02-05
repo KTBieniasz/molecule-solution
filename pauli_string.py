@@ -539,7 +539,7 @@ class LinearCombinaisonPauliString(object):
         idx = np.where(np.abs(self.coefs)>threshold)[0]
         new_pauli_strings = self.pauli_strings[idx]
         new_coefs = self.coefs[idx]
-
+        
         return self.__class__(new_coefs, new_pauli_strings)
 
     def divide_in_bitwise_commuting_cliques(self):
@@ -585,3 +585,18 @@ class LinearCombinaisonPauliString(object):
         matrix = reduce(lambda x,y: x+y[0]*y[1].to_matrix(), zip(self.coefs,self.pauli_strings), 0)
 
         return matrix
+
+    def anticommute(self,other):
+        """
+        Calculate the commutator of two LCPS.
+        
+        Returns:
+            LinearCombinaisonPauliString: Commutator simplified and sorted.
+        """
+
+        comm = (self*other+other*self).combine()
+        if any(abs(comm.coefs)>1e-15):
+            return comm.apply_threshold().sort()
+        else:
+            return 0
+
