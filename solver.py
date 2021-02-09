@@ -1,5 +1,5 @@
 """
-solver.py - Solvers for LinearCombinaisonPauliString
+solver.py - Solvers for LinearCombinationPauliString
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
 This file has been modified by <Your,Name> during the
@@ -29,7 +29,7 @@ class LCPSSolver(object):
 class ExactSolver(LCPSSolver):
     def __init__(self):
         """Exact solver to compute the expectation value of a given operator in the form of a
-        LinearCombinaisonPauliString
+        LinearCombinationPauliString
         """
         
         self.last_eig_value = None
@@ -40,7 +40,7 @@ class ExactSolver(LCPSSolver):
         Convert LCPS into a matrix and return sorted eigenvalues and eigenvectors.
 
         Args:
-            lcps (LinearCombinaisonPauliString): The LCPS to be solved.
+            lcps (LinearCombinationPauliString): The LCPS to be solved.
 
         Returns:
             np.array, np.array : Eigenvalues and eigenvectors sorted with respect to the eigenvalues.
@@ -58,7 +58,7 @@ class ExactSolver(LCPSSolver):
         Return lowest eigenvalue and associated eigenvector.
 
         Args:
-            lcps (LinearCombinaisonPauliString): The LCPS to be solved.
+            lcps (LinearCombinationPauliString): The LCPS to be solved.
 
         Returns:
             float, np.array : The lowest eigenvalue and the associated eigenvector.
@@ -78,7 +78,7 @@ class VQESolver(LCPSSolver):
     def __init__(self, evaluator, minimizer, start_params, name='vqe_solver'):
         """
         Solver based on the VQE algorithm to estimate the lowest expectation value of a given operator in the form of a
-        LinearCombinaisonPauliString
+        LinearCombinationPauliString
 
         Args:
             evaluator (Evaluator): The Evaluator that allows to transform a LCPS into a function.
@@ -105,7 +105,7 @@ class VQESolver(LCPSSolver):
         Return lowest expectation value and associated parameters the minimization could find.
 
         Args:
-            lcps (LinearCombinaisonPauliString): The LCPS to be solved.
+            lcps (LinearCombinationPauliString): The LCPS to be solved.
 
         Returns:
             float, np.array : The lowest eigenvalue and the associated parameters.
@@ -113,7 +113,7 @@ class VQESolver(LCPSSolver):
 
         t0 = time.time()
 
-        self.evaluator.set_linear_combinaison_pauli_string(lcps)
+        self.evaluator.set_linear_combination_pauli_string(lcps)
         minimization_result = self.minimizer(self.evaluator.eval,self.start_params)
         opt_value = minimization_result.fun
         opt_params = minimization_result.x

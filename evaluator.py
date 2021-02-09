@@ -1,5 +1,5 @@
 """
-evaluator.py - Evaluate LinearCombinaisonPauliString on wave-function (quantum circuit)
+evaluator.py - Evaluate LinearCombinationPauliString on wave-function (quantum circuit)
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
 This file has been modified by <Your,Name> during the
@@ -60,7 +60,7 @@ class Evaluator(object):
         self.measurement_circuits = list()
         self.interpreters = list()
 
-    def set_linear_combinaison_pauli_string(self, lcps):
+    def set_linear_combination_pauli_string(self, lcps):
         """
         Set the LCPS to be evaluated. Further LCPS can be later provided still using the same Evaluator.
         This sets the value of the attribute 'n_qubits'.
@@ -68,7 +68,7 @@ class Evaluator(object):
         'prepare_measurement_circuits_and_interpreters' (defined at the subclass level).
 
         Args:
-            lcps (LinearCombinaisonPauliString): The LCPS to be evaluated.
+            lcps (LinearCombinationPauliString): The LCPS to be evaluated.
         """
 
         self.n_qubits = lcps.n_qubits
@@ -250,7 +250,7 @@ class BasicEvaluator(Evaluator):
         interpreter. This interpreter allow to compute h<P> = sum_i T_i N_i/N_tot for each PauliString.
 
         Args:
-            lcps (LinearCombinaisonPauliString): The LCPS to be evaluated, being set.
+            lcps (LinearCombinationPauliString): The LCPS to be evaluated, being set.
 
         Returns:
             list<qiskit.QuantumCircuit>, list<np.array>: [description]
@@ -298,7 +298,7 @@ class BitwiseCommutingCliqueEvaluator(Evaluator):
         PauliString clique.
 
         Args:
-            lcps (LinearCombinaisonPauliString): The LCPS to be evaluated, being set.
+            lcps (LinearCombinationPauliString): The LCPS to be evaluated, being set.
 
         Returns:
             list<qiskit.QuantumCircuit>, list<np.array>: The QuantumCircuit to be used to measure in the basis given by
@@ -325,7 +325,7 @@ class BitwiseCommutingCliqueEvaluator(Evaluator):
         The interpreter includes the associated coefs for conveniance
 
         Args:
-            clique (LinearCombinaisonPauliString): A LCPS where all PauliString bitwise commute with on an other.
+            clique (LinearCombinationPauliString): A LCPS where all PauliString bitwise commute with on an other.
 
         Returns:
             qiskit.QuantumCircuit, np.array: The QuantumCircuit to be used to measure in the basis given by the 

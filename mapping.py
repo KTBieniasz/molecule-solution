@@ -1,5 +1,5 @@
 """
-mapping.py - Map a Hamiltonian to a LinearCombinaisonPauliString
+mapping.py - Map a Hamiltonian to a LinearCombinationPauliString
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
 This file has been modified by <Your,Name> during the
@@ -18,28 +18,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pauli_string import PauliString, LinearCombinaisonPauliString
+from pauli_string import PauliString, LinearCombinationPauliString
 import numpy as np
 
 
 class Mapping(object):
 
-    def fermionic_hamiltonian_to_linear_combinaison_pauli_string(self, fermionic_hamiltonian):
+    def fermionic_hamiltonian_to_linear_combination_pauli_string(self, fermionic_hamiltonian):
         """
         Do the mapping of a FermionicHamiltonian. First generates the LCPS representation of the creation/annihilation
-        operators for the specific mapping. Uses the 'to_linear_combinaison_pauli_string' of the FermionicHamiltonian
+        operators for the specific mapping. Uses the 'to_linear_combination_pauli_string' of the FermionicHamiltonian
         to generate the complete LCPS.
 
         Args:
             fermionic_hamiltonian (FermionicHamiltonian): A FermionicHamiltonian that provided a 
-                'to_linear_combinaison_pauli_string' method.
+                'to_linear_combination_pauli_string' method.
 
         Returns:
-            LinearCombinaisonPauliString: The LCPS reprenseting the FermionicHamiltonian
+            LinearCombinationPauliString: The LCPS reprenseting the FermionicHamiltonian
         """
 
-        aps, ams = self.fermionic_operator_linear_combinaison_pauli_string(fermionic_hamiltonian.number_of_orbitals())
-        pslc = fermionic_hamiltonian.to_linear_combinaison_pauli_string(aps, ams)
+        aps, ams = self.fermionic_operator_linear_combination_pauli_string(fermionic_hamiltonian.number_of_orbitals())
+        pslc = fermionic_hamiltonian.to_linear_combination_pauli_string(aps, ams)
         return pslc
 
 
@@ -51,7 +51,7 @@ class JordanWigner(Mapping):
 
         self.name = 'jordan-wigner'
 
-    def fermionic_operator_linear_combinaison_pauli_string(self, n_qubits):
+    def fermionic_operator_linear_combination_pauli_string(self, n_qubits):
         """
         Build the LCPS reprensetations for the creation/annihilation operator for each qubit following 
         Jordan-Wigner mapping.
@@ -60,8 +60,8 @@ class JordanWigner(Mapping):
             n_qubits (int): The number of orbitals to be mapped to the same number of qubits.
 
         Returns:
-            list<LinearCombinaisonPauliString>, list<LinearCombinaisonPauliString>: Lists of the creation/annihilation
-                operators for each orbital in the form of LinearCombinaisonPauliString.
+            list<LinearCombinationPauliString>, list<LinearCombinationPauliString>: Lists of the creation/annihilation
+                operators for each orbital in the form of LinearCombinationPauliString.
         """
         
         r_bits = [np.concatenate(([True]*n,[False]*n_qubits,[True],[False]*(n_qubits-1-n))) for n in range(n_qubits)]
@@ -81,7 +81,7 @@ class Parity(Mapping):
 
         self.name = 'parity'
 
-    def fermionic_operator_linear_combinaison_pauli_string(self, n_qubits):
+    def fermionic_operator_linear_combination_pauli_string(self, n_qubits):
         """
         Build the LCPS reprensetations for the creation/annihilation operator for each qubit following 
         Parity mapping.
@@ -90,8 +90,8 @@ class Parity(Mapping):
             n_qubits (int): The number of orbtials to be mapped to the same number of qubits.
 
         Returns:
-            list<LinearCombinaisonPauliString>, list<LinearCombinaisonPauliString>: Lists of the creation/annihilation
-                operators for each orbital in the form of LinearCombinaisonPauliString
+            list<LinearCombinationPauliString>, list<LinearCombinationPauliString>: Lists of the creation/annihilation
+                operators for each orbital in the form of LinearCombinationPauliString
         """
 
         r0_bits = [np.concatenate(([False]*n_qubits,[True]*n_qubits))]

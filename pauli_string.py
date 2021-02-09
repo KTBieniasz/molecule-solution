@@ -1,5 +1,5 @@
 """
-pauli_string.py - Define PauliString and LinearCombinaisonPauliString
+pauli_string.py - Define PauliString and LinearCombinationPauliString
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
 This file has been modified by <Your,Name> during the
@@ -80,7 +80,7 @@ class PauliString(object):
         Returns:
             PauliString, complex: When other is a PauliString
             or
-            LinearCombinaisonPauliString : When other is numeric
+            LinearCombinationPauliString : When other is numeric
         """
 
         if isinstance(other,PauliString):
@@ -100,7 +100,7 @@ class PauliString(object):
         Returns:
             PauliString, complex: When other is a PauliString
             or
-            LinearCombinaisonPauliString : When other is numeric
+            LinearCombinationPauliString : When other is numeric
         """
 
         return self.__mul__(other)
@@ -192,7 +192,7 @@ class PauliString(object):
         phase = (-1j)**w
         pauli_strings = PauliString(new_z_bits, new_x_bits)
         
-        return LinearCombinaisonPauliString([phase], [pauli_strings])
+        return LinearCombinationPauliString([phase], [pauli_strings])
 
     def mul_coef(self, coef):
         """
@@ -202,13 +202,13 @@ class PauliString(object):
             coef (int, float or complex): A numeric coefficient.
 
         Returns:
-            LinearCombinaisonPauliString: A LCPS with only one PauliString and coef.
+            LinearCombinationPauliString: A LCPS with only one PauliString and coef.
         """
 
         coefs = np.array([coef],dtype=np.complex)
         pauli_strings = np.array([self],dtype=PauliString)
 
-        return LinearCombinaisonPauliString(coefs, pauli_strings)
+        return LinearCombinationPauliString(coefs, pauli_strings)
 
     def ids(self):
         """
@@ -268,10 +268,10 @@ class PauliString(object):
 
         return all(bit_comm)
 
-class LinearCombinaisonPauliString(object):
+class LinearCombinationPauliString(object):
     def __init__(self,coefs,pauli_strings):
         """
-        Describes a Linear Combinaison of Pauli Strings.
+        Describes a Linear Combination of Pauli Strings.
 
         Args:
             coefs (np.array): Coefficients multiplying the respective PauliStrings.
@@ -298,7 +298,7 @@ class LinearCombinaisonPauliString(object):
         
     def __str__(self):
         """
-        String representation of the LinearCombinaisonPauliString.
+        String representation of the LinearCombinationPauliString.
 
         Returns:
             str: Descriptive string.
@@ -311,13 +311,13 @@ class LinearCombinaisonPauliString(object):
 
     def __getitem__(self, key):
         """
-        Return a subset of the LinearCombinaisonPauliString array-like.
+        Return a subset of the LinearCombinationPauliString array-like.
 
         Args:
             key (int or slice): Elements to be returned.
 
         Returns:
-            LinearCombinaisonPauliString: LCPS with the element specified in key.
+            LinearCombinationPauliString: LCPS with the element specified in key.
         """
         
         if isinstance(key,slice):
@@ -346,42 +346,42 @@ class LinearCombinaisonPauliString(object):
         Allow the use of + to add two LCPS together.
 
         Args:
-            other (LinearCombinaisonPauliString): Another LCPS.
+            other (LinearCombinationPauliString): Another LCPS.
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS of len = len(self) + len(other).
+            LinearCombinationPauliString: New LCPS of len = len(self) + len(other).
         """
 
-        return self.add_linear_combinaison_pauli_string(other)
+        return self.add_linear_combination_pauli_string(other)
 
     def __sub__(self,other):
         """
         Allow the use of - to subtract two LCPS.
 
         Args:
-            other (LinearCombinaisonPauliString): Another LCPS.
+            other (LinearCombinationPauliString): Another LCPS.
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS of len = len(self) + len(other).
+            LinearCombinationPauliString: New LCPS of len = len(self) + len(other).
         """
 
-        return self.add_linear_combinaison_pauli_string(-1*other)
+        return self.add_linear_combination_pauli_string(-1*other)
     
     def __mul__(self, other):
         """
         Allow the use of * with other LCPS or numeric value(s)
 
         Args:
-            other (LinearCombinaisonPauliString): An other LCPS
+            other (LinearCombinationPauliString): An other LCPS
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS of len = len(self) * len(other)
+            LinearCombinationPauliString: New LCPS of len = len(self) * len(other)
             or
-            LinearCombinaisonPauliString: New LCPS of same length with modified coefs
+            LinearCombinationPauliString: New LCPS of same length with modified coefs
         """
 
-        if isinstance(other,LinearCombinaisonPauliString):
-            return self.mul_linear_combinaison_pauli_string(other)
+        if isinstance(other,LinearCombinationPauliString):
+            return self.mul_linear_combination_pauli_string(other)
         else:
             return self.mul_coef(other)
 
@@ -392,32 +392,32 @@ class LinearCombinaisonPauliString(object):
         Like in 0.5 * LCPS.
 
         Args:
-            other (LinearCombinaisonPauliString): An other LCPS.
+            other (LinearCombinationPauliString): An other LCPS.
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS of len = len(self) * len(other)
+            LinearCombinationPauliString: New LCPS of len = len(self) * len(other)
             or
-            LinearCombinaisonPauliString: New LCPS of same length with modified coefs
+            LinearCombinationPauliString: New LCPS of same length with modified coefs
         """
 
         return self.__mul__(other)
 
-    def add_linear_combinaison_pauli_string(self, other):
+    def add_linear_combination_pauli_string(self, other):
         """
         Adding with an other LCPS. Merging the coefs and PauliStrings arrays.
 
         Args:
-            other (LinearCombinaisonPauliString): An other LCPS.
+            other (LinearCombinationPauliString): An other LCPS.
 
         Raises:
             ValueError: If other is not an LCPS.
             ValueError: If the other LCPS has not the same number of qubits.
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS of len = len(self) + len(other).
+            LinearCombinationPauliString: New LCPS of len = len(self) + len(other).
         """
 
-        if not isinstance(other,LinearCombinaisonPauliString):
+        if not isinstance(other,LinearCombinationPauliString):
             raise ValueError('Can only add with another LCPS')
 
         if self.n_qubits != other.n_qubits:
@@ -428,22 +428,22 @@ class LinearCombinaisonPauliString(object):
 
         return self.__class__(new_coefs, new_pauli_strings)
 
-    def mul_linear_combinaison_pauli_string(self, other):
+    def mul_linear_combination_pauli_string(self, other):
         """
         Multiply with an other LCPS.
 
         Args:
-            other (LinearCombinaisonPauliString): An other LCPS.
+            other (LinearCombinationPauliString): An other LCPS.
 
         Raises:
             ValueError: If other is not an LCPS.
             ValueError: If the other LCPS has not the same number of qubits.
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS of len = len(self) * len(other).
+            LinearCombinationPauliString: New LCPS of len = len(self) * len(other).
         """
 
-        if not isinstance(other, LinearCombinaisonPauliString):
+        if not isinstance(other, LinearCombinationPauliString):
             raise ValueError()
 
         if self.n_qubits != other.n_qubits:
@@ -466,7 +466,7 @@ class LinearCombinaisonPauliString(object):
             ValueError: If other is np.array should be of the same length as the LCPS.
 
         Returns:
-            LinearCombinaisonPauliString: New LCPS equal to the original LCPS  multiplied by the coef
+            LinearCombinationPauliString: New LCPS equal to the original LCPS  multiplied by the coef
         """
 
         new_coefs = self.coefs * other
@@ -516,7 +516,7 @@ class LinearCombinaisonPauliString(object):
         Reduces the length of the LCPS.
 
         Returns:
-            LinearCombinaisonPauliString: LCPS with combined coefficients.
+            LinearCombinationPauliString: LCPS with combined coefficients.
         """
 
         new_zx_bits, ps_idx, coef_idx = np.unique(self.to_zx_bits(), return_index=True, return_inverse=True, axis=0)
@@ -535,7 +535,7 @@ class LinearCombinaisonPauliString(object):
                                          Defaults to 1e-6.
 
         Returns:
-            LinearCombinaisonPauliString: LCPS without coefficients smaller then threshold.
+            LinearCombinationPauliString: LCPS without coefficients smaller then threshold.
         """
 
         idx = np.where(np.abs(self.coefs)>threshold)[0]
@@ -549,7 +549,7 @@ class LinearCombinaisonPauliString(object):
         Find bitwise commuting cliques in the LCPS.
 
         Returns:
-            list<LinearCombinaisonPauliString>: List of LCPS where all elements of one LCPS bitwise commute with each
+            list<LinearCombinationPauliString>: List of LCPS where all elements of one LCPS bitwise commute with each
                                                 other.
         """
         
@@ -566,7 +566,7 @@ class LinearCombinaisonPauliString(object):
         Sort the PauliStrings by order of the zx_bits.
 
         Returns:
-            LinearCombinaisonPauliString: Sorted.
+            LinearCombinationPauliString: Sorted.
         """
 
         order = np.lexsort(self.to_zx_bits().T, axis=0)
@@ -593,7 +593,7 @@ class LinearCombinaisonPauliString(object):
         Calculate the anticommutator of two LCPS.
         
         Returns:
-            LinearCombinaisonPauliString: Commutator simplified and sorted.
+            LinearCombinationPauliString: Commutator simplified and sorted.
         """
 
         comm = (self*other+other*self).combine()

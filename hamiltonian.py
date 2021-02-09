@@ -21,7 +21,7 @@ limitations under the License.
 import numpy as np
 from functools import reduce
 import itertools as it
-from pauli_string import PauliString, LinearCombinaisonPauliString
+from pauli_string import PauliString, LinearCombinationPauliString
 
 class FermionicHamiltonian(object):
 
@@ -136,19 +136,19 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
         
         return OneBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
-    def to_linear_combinaison_pauli_string(self, aps, ams, threshold=1e-15):
+    def to_linear_combination_pauli_string(self, aps, ams, threshold=1e-15):
         """
-        Generates a qubit operator reprensentation (LinearCombinaisonPauliString) of the OneBodyFermionicHamiltonian
+        Generates a qubit operator reprensentation (LinearCombinationPauliString) of the OneBodyFermionicHamiltonian
         given some creation/annihilation operators.
 
         Args:
-            aps (list<LinearCombinaisonPauliString>): List of the creation operators for each orbital in the form of
-                                                    LinearCombinaisonPauliString.
-            ams (list<LinearCombinaisonPauliString>): List of the annihilation operators for each orbital in the form of
-                                                    LinearCombinaisonPauliString.
+            aps (list<LinearCombinationPauliString>): List of the creation operators for each orbital in the form of
+                                                    LinearCombinationPauliString.
+            ams (list<LinearCombinationPauliString>): List of the annihilation operators for each orbital in the form of
+                                                    LinearCombinationPauliString.
 
         Returns:
-            LinearCombinaisonPauliString: Qubit operator reprensentation of the OneBodyFermionicHamiltonian.
+            LinearCombinationPauliString: Qubit operator reprensentation of the OneBodyFermionicHamiltonian.
         """
 
         lcps_gen = np.array([((ps:=p*m).pauli_strings, i*ps.coefs) for (p,m),i in zip(it.product(aps,ams), self.integrals.flatten()) if abs(i)>threshold])
@@ -156,7 +156,7 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
         coefs = np.array(lcps_gen[:,1,:].flatten())
         pauli_strings = np.array(lcps_gen[:,0,:].flatten())
         
-        return LinearCombinaisonPauliString(coefs,pauli_strings)
+        return LinearCombinationPauliString(coefs,pauli_strings)
 
 
 class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
@@ -198,19 +198,19 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
 
         return TwoBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
-    def to_linear_combinaison_pauli_string(self, aps, ams, threshold=1e-15):
+    def to_linear_combination_pauli_string(self, aps, ams, threshold=1e-15):
         """
-        Generates a qubit operator reprensentation (LinearCombinaisonPauliString) of the TwoBodyFermionicHamiltonian
+        Generates a qubit operator reprensentation (LinearCombinationPauliString) of the TwoBodyFermionicHamiltonian
         given some creation/annihilation operators.
 
         Args:
-            aps (list<LinearCombinaisonPauliString>): List of the creation operators for each orbital in the form of
-                                                    LinearCombinaisonPauliString.
-            ams (list<LinearCombinaisonPauliString>): List of the annihilation operators for each orbital in the form of
-                                                    LinearCombinaisonPauliString.
+            aps (list<LinearCombinationPauliString>): List of the creation operators for each orbital in the form of
+                                                    LinearCombinationPauliString.
+            ams (list<LinearCombinationPauliString>): List of the annihilation operators for each orbital in the form of
+                                                    LinearCombinationPauliString.
 
         Returns:
-            LinearCombinaisonPauliString: Qubit operator reprensentation of the TwoBodyFermionicHamiltonian.
+            LinearCombinationPauliString: Qubit operator reprensentation of the TwoBodyFermionicHamiltonian.
         """     
 
         lcps_gen = np.array([((ps:=p1*(p2*m2)*m1).pauli_strings, (0.5*i)*ps.coefs) for (p1,p2,m2,m1),i in zip(it.product(aps,aps,ams,ams), self.integrals.flatten()) if abs(i)>threshold])
@@ -218,7 +218,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
         coefs = np.array(lcps_gen[:,1,:].flatten())
         pauli_strings = np.array(lcps_gen[:,0,:].flatten())
         
-        return LinearCombinaisonPauliString(coefs,pauli_strings)
+        return LinearCombinationPauliString(coefs,pauli_strings)
 
 
 class MolecularFermionicHamiltonian(FermionicHamiltonian):
@@ -373,23 +373,23 @@ class MolecularFermionicHamiltonian(FermionicHamiltonian):
 
         return integrals_one, integrals_two
 
-    def to_linear_combinaison_pauli_string(self, aps, ams):
+    def to_linear_combination_pauli_string(self, aps, ams):
         """
-        Generates a qubit operator representation (LinearCombinaisonPauliString) of the MolecularFermionicHamiltonian
+        Generates a qubit operator representation (LinearCombinationPauliString) of the MolecularFermionicHamiltonian
         given some creation/annihilation operators.
 
         Args:
-            aps (list<LinearCombinaisonPauliString>): List of the creation operators for each orbital in the form of
-                                                    LinearCombinaisonPauliString.
-            ams (list<LinearCombinaisonPauliString>): List of the annihilation operators for each orbital in the form of
-                                                    LinearCombinaisonPauliString.
+            aps (list<LinearCombinationPauliString>): List of the creation operators for each orbital in the form of
+                                                    LinearCombinationPauliString.
+            ams (list<LinearCombinationPauliString>): List of the annihilation operators for each orbital in the form of
+                                                    LinearCombinationPauliString.
 
         Returns:
-            LinearCombinaisonPauliString: Qubit operator reprensentation of the MolecularFermionicHamiltonian.
+            LinearCombinationPauliString: Qubit operator reprensentation of the MolecularFermionicHamiltonian.
         """     
 
-        one_body = self.one_body.to_linear_combinaison_pauli_string(aps, ams)
-        two_body = self.two_body.to_linear_combinaison_pauli_string(aps, ams)
+        one_body = self.one_body.to_linear_combination_pauli_string(aps, ams)
+        two_body = self.two_body.to_linear_combination_pauli_string(aps, ams)
         out = one_body + two_body
         
         return out
