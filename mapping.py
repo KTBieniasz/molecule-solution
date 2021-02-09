@@ -27,7 +27,7 @@ class Mapping(object):
     def fermionic_hamiltonian_to_linear_combinaison_pauli_string(self, fermionic_hamiltonian):
         """
         Do the mapping of a FermionicHamiltonian. First generates the LCPS representation of the creation/annihilation
-        operators for the specific mapping. Uses the 'to_pauli_string_linear_combinaison' of the FermionicHamiltonian
+        operators for the specific mapping. Uses the 'to_linear_combinaison_pauli_string' of the FermionicHamiltonian
         to generate the complete LCPS.
 
         Args:

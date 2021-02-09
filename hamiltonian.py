@@ -136,7 +136,7 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
         
         return OneBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
-    def to_linear_combinaison_pauli_string(self, aps, ams):
+    def to_linear_combinaison_pauli_string(self, aps, ams, threshold=1e-15):
         """
         Generates a qubit operator reprensentation (LinearCombinaisonPauliString) of the OneBodyFermionicHamiltonian
         given some creation/annihilation operators.
@@ -149,12 +149,14 @@ class OneBodyFermionicHamiltonian(FermionicHamiltonian):
 
         Returns:
             LinearCombinaisonPauliString: Qubit operator reprensentation of the OneBodyFermionicHamiltonian.
-        """        
+        """
 
-        lcps_gen = (p*m*i for (p,m),i in zip(it.product(aps,ams), self.integrals.flatten()) if abs(i)>1e-15)
-        lcps = reduce(sum, lcps_gen)
+        lcps_gen = np.array([((ps:=p*m).pauli_strings, i*ps.coefs) for (p,m),i in zip(it.product(aps,ams), self.integrals.flatten()) if abs(i)>threshold])
+
+        coefs = np.array(lcps_gen[:,1,:].flatten())
+        pauli_strings = np.array(lcps_gen[:,0,:].flatten())
         
-        return lcps
+        return LinearCombinaisonPauliString(coefs,pauli_strings)
 
 
 class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
@@ -196,7 +198,7 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
 
         return TwoBodyFermionicHamiltonian(new_integrals, self.with_spin)
 
-    def to_linear_combinaison_pauli_string(self, aps, ams):
+    def to_linear_combinaison_pauli_string(self, aps, ams, threshold=1e-15):
         """
         Generates a qubit operator reprensentation (LinearCombinaisonPauliString) of the TwoBodyFermionicHamiltonian
         given some creation/annihilation operators.
@@ -211,11 +213,13 @@ class TwoBodyFermionicHamiltonian(FermionicHamiltonian):
             LinearCombinaisonPauliString: Qubit operator reprensentation of the TwoBodyFermionicHamiltonian.
         """     
 
-        lcps_gen = (0.5*p1*p2*m1*m2*i for (p1,p2,m1,m2),i in zip(it.product(aps,aps,ams,ams), self.integrals.flatten()) if abs(i)>1e-15)
-        lcps = reduce(sum, lcps_gen)
+        lcps_gen = np.array([((ps:=p1*(p2*m2)*m1).pauli_strings, (0.5*i)*ps.coefs) for (p1,p2,m2,m1),i in zip(it.product(aps,aps,ams,ams), self.integrals.flatten()) if abs(i)>threshold])
+
+        coefs = np.array(lcps_gen[:,1,:].flatten())
+        pauli_strings = np.array(lcps_gen[:,0,:].flatten())
         
-        return lcps
-        
+        return LinearCombinaisonPauliString(coefs,pauli_strings)
+
 
 class MolecularFermionicHamiltonian(FermionicHamiltonian):
     def __init__(self, one_body, two_body, with_spin=False):

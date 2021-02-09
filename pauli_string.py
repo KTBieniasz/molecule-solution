@@ -190,8 +190,9 @@ class PauliString(object):
                        +other.z_bits*other.x_bits
                        -new_z_bits*new_x_bits)
         phase = (-1j)**w
-
-        return self.__class__(new_z_bits, new_x_bits), phase
+        pauli_strings = PauliString(new_z_bits, new_x_bits)
+        
+        return LinearCombinaisonPauliString([phase], [pauli_strings])
 
     def mul_coef(self, coef):
         """
@@ -320,7 +321,7 @@ class LinearCombinaisonPauliString(object):
         """
         
         if isinstance(key,slice):
-            new_coefs = np.array(self.coefs[key])
+            new_coefs = self.coefs[key]
             new_pauli_strings = self.pauli_strings[key]
         else:
             if isinstance(key,int):
@@ -351,7 +352,7 @@ class LinearCombinaisonPauliString(object):
             LinearCombinaisonPauliString: New LCPS of len = len(self) + len(other).
         """
 
-        return self.add_pauli_string_linear_combinaison(other)
+        return self.add_linear_combinaison_pauli_string(other)
 
     def __sub__(self,other):
         """
@@ -364,7 +365,7 @@ class LinearCombinaisonPauliString(object):
             LinearCombinaisonPauliString: New LCPS of len = len(self) + len(other).
         """
 
-        return self.add_pauli_string_linear_combinaison(-1*other)
+        return self.add_linear_combinaison_pauli_string(-1*other)
     
     def __mul__(self, other):
         """
@@ -401,7 +402,7 @@ class LinearCombinaisonPauliString(object):
 
         return self.__mul__(other)
 
-    def add_pauli_string_linear_combinaison(self, other):
+    def add_linear_combinaison_pauli_string(self, other):
         """
         Adding with an other LCPS. Merging the coefs and PauliStrings arrays.
 
@@ -448,10 +449,11 @@ class LinearCombinaisonPauliString(object):
         if self.n_qubits != other.n_qubits:
             raise ValueError('Can only multiply with LCPS of identical number of qubits')
 
-        new_coefs = np.array([x*y for x in self.coefs for y in other.coefs], dtype=np.complex)
-        new_pauli_strings = np.array([x*y for x in self.pauli_strings for y in other.pauli_strings], np.dtype(PauliString, np.complex))
+        lcps_gen = np.array([((ps:=(x*y)).pauli_strings, (cx*cy)*ps.coefs) for cx,x in zip(self.coefs,self.pauli_strings) for cy,y in zip(other.coefs,other.pauli_strings)])
+        new_coefs = lcps_gen[:,1,:].flatten()
+        new_pauli_strings = lcps_gen[:,0,:].flatten()
         
-        return self.__class__(new_coefs*new_pauli_strings[:,1], new_pauli_strings[:,0])
+        return self.__class__(new_coefs, new_pauli_strings)
 
     def mul_coef(self,other):
         """
@@ -588,7 +590,7 @@ class LinearCombinaisonPauliString(object):
 
     def anticommute(self,other):
         """
-        Calculate the commutator of two LCPS.
+        Calculate the anticommutator of two LCPS.
         
         Returns:
             LinearCombinaisonPauliString: Commutator simplified and sorted.
