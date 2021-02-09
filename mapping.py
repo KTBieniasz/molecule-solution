@@ -2,7 +2,7 @@
 mapping.py - Map a Hamiltonian to a LinearCombinationPauliString
 
 Copyright 2020-2021 Maxime Dion <maxime.dion@usherbrooke.ca>
-This file has been modified by <Your,Name> during the
+This file has been modified by Krzysztof Bieniasz during the
 QSciTech-QuantumBC virtual workshop on gate-based quantum computing.
 
 Licensed under the Apache License, Version 2.0 (the "License");
